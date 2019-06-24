@@ -769,8 +769,7 @@
     CGPoint offset = _collectionView.contentOffset;
 
     CGFloat page = offset.x/(kViewWidth+kItemMargin);
-    if (ceilf(page) >= self.models.count ||
-        page < 0) {
+    if (ceilf(page) >= self.models.count) {
         return nil;
     }
     NSString *str = [NSString stringWithFormat:@"%.0f", page];

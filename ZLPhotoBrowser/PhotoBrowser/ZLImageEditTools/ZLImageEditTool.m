@@ -333,11 +333,11 @@
     [self addSubview:self.revokeBtn];
     
     CGFloat W = 40;
-    CGFloat H = 40;
+    CGFloat ZLH = 40;
     CGFloat x = 0;
     
     for (int i = ZLDrawItemColorTypeWhite; i <= ZLDrawItemColorTypePurple; i++) {
-        ZLDrawItem *item = [[ZLDrawItem alloc] initWithFrame:CGRectMake(x, 0, W, H) colorType:i target:self action:@selector(tapDrawColor:)];
+        ZLDrawItem *item = [[ZLDrawItem alloc] initWithFrame:CGRectMake(x, 0, W, ZLH) colorType:i target:self action:@selector(tapDrawColor:)];
         [_drawMenu addSubview:item];
         
         if (!self.selectDrawItem) {
@@ -382,7 +382,7 @@
     [view addSubview:_rotateRatioBtn];
     
     CGFloat W = 70;
-    CGFloat H = 80;
+    CGFloat ZLH = 80;
     CGFloat x = 0;
     
     CGSize  imgSize = self.editImage.size;
@@ -399,7 +399,7 @@
         
         ratio.isLandscape = val1 > val2;
         
-        ZLClipItem *item = [[ZLClipItem alloc] initWithFrame:CGRectMake(x, 0, W, H) image:iconImage target:self action:@selector(tapRadio:)];
+        ZLClipItem *item = [[ZLClipItem alloc] initWithFrame:CGRectMake(x, 0, W, ZLH) image:iconImage target:self action:@selector(tapRadio:)];
         item.ratio = ratio;
         [item refreshViews];
         
@@ -624,11 +624,11 @@
 {
     CGRect rect = _imageView.bounds;
     if (self.selectClipRatio) {
-        CGFloat H = rect.size.width * self.selectClipRatio.ratio;
-        if (H <= rect.size.height) {
-            rect.size.height = H;
+        CGFloat ZLH = rect.size.width * self.selectClipRatio.ratio;
+        if (ZLH <= rect.size.height) {
+            rect.size.height = ZLH;
         } else {
-            rect.size.width *= rect.size.height / H;
+            rect.size.width *= rect.size.height / ZLH;
         }
 
         rect.origin.x = (_imageView.bounds.size.width - rect.size.width) / 2;
@@ -684,11 +684,11 @@
     CGRect rct = self.clippingRect;
     
     const CGFloat W = _imageView.frame.size.width;
-    const CGFloat H = _imageView.frame.size.height;
+    const CGFloat ZLH = _imageView.frame.size.height;
     CGFloat minX = 0;
     CGFloat minY = 0;
     CGFloat maxX = W;
-    CGFloat maxY = H;
+    CGFloat maxY = ZLH;
     
     CGFloat ratio = (sender.view.tag == 1 || sender.view.tag==2) ? -self.selectClipRatio.ratio : self.selectClipRatio.ratio;
     
@@ -696,7 +696,7 @@
         case 0: // upper left
         {
             maxX = MAX((rct.origin.x + rct.size.width)  - 0.1 * W, 0.1 * W);
-            maxY = MAX((rct.origin.y + rct.size.height) - 0.1 * H, 0.1 * H);
+            maxY = MAX((rct.origin.y + rct.size.height) - 0.1 * ZLH, 0.1 * ZLH);
             
             if (ratio!=0) {
                 CGFloat y0 = rct.origin.y - ratio * rct.origin.x;
@@ -723,13 +723,13 @@
         case 1: // lower left
         {
             maxX = MAX((rct.origin.x + rct.size.width)  - 0.1 * W, 0.1 * W);
-            minY = MAX(rct.origin.y + 0.1 * H, 0.1 * H);
+            minY = MAX(rct.origin.y + 0.1 * ZLH, 0.1 * ZLH);
             
             if (ratio!=0) {
                 CGFloat y0 = (rct.origin.y + rct.size.height) - ratio* rct.origin.x ;
-                CGFloat xh = (H - y0) / ratio;
+                CGFloat xh = (ZLH - y0) / ratio;
                 minX = MAX(xh, 0);
-                maxY = MIN(y0, H);
+                maxY = MIN(y0, ZLH);
                 
                 point.x = MAX(minX, MIN(point.x, maxX));
                 point.y = MAX(minY, MIN(point.y, maxY));
@@ -749,7 +749,7 @@
         case 2: // upper right
         {
             minX = MAX(rct.origin.x + 0.1 * W, 0.1 * W);
-            maxY = MAX((rct.origin.y + rct.size.height) - 0.1 * H, 0.1 * H);
+            maxY = MAX((rct.origin.y + rct.size.height) - 0.1 * ZLH, 0.1 * ZLH);
             
             if (ratio!=0) {
                 CGFloat y0 = rct.origin.y - ratio * (rct.origin.x + rct.size.width);
@@ -776,14 +776,14 @@
         case 3: // lower right
         {
             minX = MAX(rct.origin.x + 0.1 * W, 0.1 * W);
-            minY = MAX(rct.origin.y + 0.1 * H, 0.1 * H);
+            minY = MAX(rct.origin.y + 0.1 * ZLH, 0.1 * ZLH);
             
             if (ratio!=0) {
                 CGFloat y0 = (rct.origin.y + rct.size.height) - ratio * (rct.origin.x + rct.size.width);
                 CGFloat yw = ratio * W + y0;
-                CGFloat xh = (H - y0) / ratio;
+                CGFloat xh = (ZLH - y0) / ratio;
                 maxX = MIN(xh, W);
-                maxY = MIN(yw, H);
+                maxY = MIN(yw, ZLH);
                 
                 point.x = MAX(minX, MIN(point.x, maxX));
                 point.y = MAX(minY, MIN(point.y, maxY));

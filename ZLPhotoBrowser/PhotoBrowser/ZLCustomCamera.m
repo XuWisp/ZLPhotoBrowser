@@ -42,6 +42,7 @@
 - (void)onOkClick;
 
 - (void)onDismiss;
+- (void)onPhotoBtnClick;
 
 @end
 
@@ -54,6 +55,7 @@
         unsigned int retake : 1;
         unsigned int okClick : 1;
         unsigned int dismiss : 1;
+        unsigned int photoClick : 1;
     } _delegateFlag;
     
     //避免动画及长按手势触发两次
@@ -73,6 +75,9 @@
 @property (nonatomic, strong) UIButton *doneBtn;
 @property (nonatomic, strong) UIView *topView;
 @property (nonatomic, strong) UIView *bottomView;
+@property (nonatomic, strong) UIImageView *bottomImgV;
+@property (nonatomic, strong) UIButton *photoBtn;
+
 @property (nonatomic, strong) CAShapeLayer *animateLayer;
 
 @property (nonatomic, assign) CGFloat duration;
@@ -114,6 +119,7 @@
     _delegateFlag.retake = [delegate respondsToSelector:@selector(onRetake)];
     _delegateFlag.okClick = [delegate respondsToSelector:@selector(onOkClick)];
     _delegateFlag.dismiss = [delegate respondsToSelector:@selector(onDismiss)];
+    _delegateFlag.photoClick = [delegate respondsToSelector:@selector(onPhotoBtnClick)];
 }
 
 - (void)layoutSubviews
@@ -127,11 +133,16 @@
     self.bottomView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
     self.bottomView.layer.cornerRadius = height*kBottomViewScale/2;
 
+    self.bottomImgV.frame = self.bottomView.bounds;
+
     self.topView.frame = CGRectMake(0, 0, height*kTopViewScale, height*kTopViewScale);
     self.topView.center = self.bottomView.center;
     self.topView.layer.cornerRadius = height*kTopViewScale/2;
     
     self.dismissBtn.frame = CGRectMake(60, self.bounds.size.height/2-25/2, 25, 25);
+    
+    self.photoBtn.frame = CGRectMake(50, 0, height*kBottomViewScale*0.8, height*kBottomViewScale);
+    self.photoBtn.center = CGPointMake(CGRectGetMidX(self.bounds)-height, CGRectGetMidY(self.bounds));
 
     self.cancelBtn.frame = self.bottomView.frame;
     self.cancelBtn.layer.cornerRadius = height*kBottomViewScale/2;
@@ -167,17 +178,27 @@
     self.bottomView.backgroundColor = [kRGB(244, 244, 244) colorWithAlphaComponent:.9];
     [self addSubview:self.bottomView];
     
+    self.bottomImgV = [[UIImageView alloc] init];
+    self.bottomImgV.image = GetImageWithName(@"ct_takeapicture");
+    [self.bottomView addSubview:self.bottomImgV];
+
     self.topView = [[UIView alloc] init];
     self.topView.layer.masksToBounds = YES;
     self.topView.backgroundColor = [UIColor whiteColor];
     self.topView.userInteractionEnabled = NO;
-    [self addSubview:self.topView];
+    //[self addSubview:self.topView];
     
     self.dismissBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.dismissBtn.frame = CGRectMake(60, self.bounds.size.height/2-25/2, 25, 25);
+    self.dismissBtn.frame = CGRectMake(14, KStatusBarHeight+9, 33, 33);
     [self.dismissBtn setImage:GetImageWithName(@"zl_arrow_down") forState:UIControlStateNormal];
     [self.dismissBtn addTarget:self action:@selector(dismissVC) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:self.dismissBtn];
+    //[self addSubview:self.dismissBtn];
+    
+    self.photoBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.photoBtn setImage:GetImageWithName(@"ct_photoalbum") forState:UIControlStateNormal];
+    [self.photoBtn addTarget:self action:@selector(photoBtnClick) forControlEvents:UIControlEventTouchUpInside];
+    //
+    //[self addSubview:self.photoBtn];
     
     self.cancelBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     self.cancelBtn.backgroundColor = [kRGB(244, 244, 244) colorWithAlphaComponent:.9];
@@ -186,7 +207,7 @@
     self.cancelBtn.layer.masksToBounds = YES;
     self.cancelBtn.hidden = YES;
     [self addSubview:self.cancelBtn];
-    
+
     self.doneBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     self.doneBtn.frame = self.bottomView.frame;
     self.doneBtn.backgroundColor = [UIColor whiteColor];
@@ -241,7 +262,8 @@
 - (void)startAnimate
 {
     self.dismissBtn.hidden = YES;
-    
+    self.photoBtn.hidden = YES;
+
     [UIView animateWithDuration:kAnimateDuration animations:^{
         self.bottomView.layer.transform = CATransform3DScale(CATransform3DIdentity, 1/kBottomViewScale, 1/kBottomViewScale, 1);
         self.topView.layer.transform = CATransform3DScale(CATransform3DIdentity, 0.7, 0.7, 1);
@@ -267,7 +289,8 @@
     self.bottomView.hidden = YES;
     self.topView.hidden = YES;
     self.dismissBtn.hidden = YES;
-    
+    self.photoBtn.hidden = YES;
+
     self.bottomView.layer.transform = CATransform3DIdentity;
     self.topView.layer.transform = CATransform3DIdentity;
     
@@ -307,6 +330,7 @@
         [self.animateLayer removeFromSuperlayer];
     }
     self.dismissBtn.hidden = NO;
+    self.photoBtn.hidden = NO;
     self.bottomView.hidden = NO;
     self.topView.hidden = NO;
     self.cancelBtn.hidden = YES;
@@ -326,6 +350,11 @@
 {
     [self resetUI];
     if (_delegateFlag.retake) [self.delegate performSelector:@selector(onRetake)];
+}
+
+- (void)photoBtnClick {
+    NSLog(@"photoBtnClick");
+    if (_delegateFlag.photoClick) [self.delegate performSelector:@selector(onPhotoBtnClick)];
 }
 
 - (void)doneClick
@@ -361,6 +390,8 @@
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 //切换摄像头按钮
 @property (nonatomic, strong) UIButton *toggleCameraBtn;
+//切换摄像头按钮
+@property (nonatomic, strong) UIButton *dismissBtn;
 //聚焦图
 @property (nonatomic, strong) UIImageView *focusCursorImageView;
 //录制视频保存的url
@@ -527,7 +558,8 @@
     
     self.toolView.frame = CGRectMake(0, kViewHeight-130-ZL_SafeAreaBottom(), kViewWidth, 100);
     self.previewLayer.frame = self.view.layer.bounds;
-    self.toggleCameraBtn.frame = CGRectMake(kViewWidth-50, 20, 30, 30);
+    self.toggleCameraBtn.frame = CGRectMake(kViewWidth-50, KStatusBarHeight+9, 30, 30);
+    self.dismissBtn.frame = CGRectMake(14, KStatusBarHeight+9, 33, 33);
 }
 
 - (void)setupUI
@@ -554,6 +586,11 @@
     [self.toggleCameraBtn addTarget:self action:@selector(btnToggleCameraAction) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.toggleCameraBtn];
     
+    self.dismissBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.dismissBtn setImage:GetImageWithName(@"ct_icon_closed") forState:UIControlStateNormal];
+    [self.dismissBtn addTarget:self action:@selector(onDismiss) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.dismissBtn];
+
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(adjustFocusPoint:)];
     tap.delegate = self;
     [self.view addGestureRecognizer:tap];
@@ -833,6 +870,7 @@
     }];
 }
 
+
 //开始录制
 - (void)onStartRecord
 {
@@ -851,6 +889,10 @@
     [self.movieFileOutPut stopRecording];
     [self.session stopRunning];
     [self setVideoZoomFactor:1];
+}
+
+- (void)onPhotoBtnClick {
+    // 自己需要在这个地方进行图片或者视频的保存
 }
 
 //重新拍照或录制
